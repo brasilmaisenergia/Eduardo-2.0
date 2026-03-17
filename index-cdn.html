@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eduardo 2.0 - Análise de Notícias</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f3f4f6; }
+        .navbar { background: #2563eb; color: white; padding: 1rem 2rem; }
+        .navbar h1 { margin: 0; }
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .container { background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .status { background: #dcfce7; color: #059669; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Eduardo 2.0 - Sistema de Análise de Notícias</h1>
+    </nav>
+    <main>
+        <div id="root"></div>
+    </main>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [status, setStatus] = useState('Inicializando...');
+
+            useEffect(() => {
+                setStatus('✓ Sistema carregado com sucesso!');
+            }, []);
+
+            return (
+                <div className="container">
+                    <h2>Fase 3.4 - Setup Completo</h2>
+                    <div className="status">{status}</div>
+                    <p>Este é um teste de validação do Eduardo 2.0</p>
+                    <ul>
+                        <li>✓ React carregado via CDN</li>
+                        <li>✓ Babel transpiler funcionando</li>
+                        <li>✓ Componentes renderizando</li>
+                    </ul>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
