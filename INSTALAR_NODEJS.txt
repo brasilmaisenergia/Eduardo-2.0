@@ -1,0 +1,107 @@
+================================================================================
+                     ⚠️ VOCÊ PRECISA INSTALAR NODE.JS
+================================================================================
+
+PASSO 1: VERIFICAR SE ESTÁ INSTALADO
+================================================================================
+
+Abra PowerShell e cole:
+
+node --version
+
+SE RESPONDER COM UMA VERSÃO (ex: v18.0.0):
+  ✓ Node.js JÁ está instalado
+  ✓ Vá para PASSO 3
+
+SE RESPONDER "não é reconhecido como comando":
+  ✗ Node.js NÃO está instalado
+  ✗ Siga para PASSO 2
+
+================================================================================
+PASSO 2: INSTALAR NODE.JS
+================================================================================
+
+1. Abra seu navegador (Chrome, Firefox, Edge, etc)
+
+2. Vá para: https://nodejs.org
+
+3. Você verá dois botões:
+   - LTS (recomendado) ← CLIQUE AQUI
+   - Current
+
+4. Um arquivo .msi vai baixar
+   Exemplo: node-v20.11.0-x64.msi
+
+5. Execute o arquivo (duplo clique)
+
+6. INSTALADOR ABRE - SIGA ASSIM:
+
+   [Next]
+   ↓
+   [Aceitar termos] → CLIQUE NA CAIXA ✓
+   ↓
+   [Next]
+   ↓
+   [Destino padrão está bom] → [Next]
+   ↓
+   [Aqui tem uns checkboxes] → DEIXE TUDO CHECADO ✓
+   ↓
+   [IMPORTANTE: "Add to PATH" deve estar MARCADO] ✓✓✓
+   ↓
+   [Next]
+   ↓
+   [Tools for Native Modules] → [Next] (não precisa)
+   ↓
+   [Ready to Install] → [Install]
+   ↓
+   Aguarde terminar...
+   ↓
+   [Finish]
+
+7. FECHA O INSTALADOR
+
+8. REINICIE O COMPUTADOR (importante!)
+   OU apenas feche e abra de novo o PowerShell
+
+================================================================================
+PASSO 3: VERIFICAR INSTALAÇÃO
+================================================================================
+
+Abra PowerShell e cole:
+
+node --version
+npm --version
+
+Você deve ver:
+v20.11.0 (ou similar)
+10.9.4 (ou similar)
+
+Se vir números, tudo está certo!
+
+================================================================================
+PASSO 4: EXECUTAR O SETUP
+================================================================================
+
+Agora execute:
+
+cd "C:\Users\claud\OneDrive\Documentos\01- Brasil mais energia\Eduardo\bme-frontend" && powershell -ExecutionPolicy Bypass -File EXECUTE_FASE_3.4_CORRIGIDO.ps1
+
+================================================================================
+SE NÃO FUNCIONAR
+================================================================================
+
+1. Execute este diagnóstico:
+
+   powershell -ExecutionPolicy Bypass -File DIAGNOSTICO.ps1
+
+2. Me mande o resultado!
+
+================================================================================
+
+RESUMO:
+1. Instale Node.js de https://nodejs.org (versão LTS)
+2. Reinicie o PowerShell
+3. Execute: node --version
+4. Execute o setup script
+
+================================================================================
