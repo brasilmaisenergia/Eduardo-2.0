@@ -1,0 +1,57 @@
+================================================================================
+                          🔴 PROBLEMA ENCONTRADO
+================================================================================
+
+Node.js NÃO ESTÁ INSTALADO na sua máquina!
+
+O script tentou rodar mas recebeu:
+"ERRO: Node.js nÃo encontrado!"
+
+================================================================================
+                          ✅ SOLUÇÃO RÁPIDA
+================================================================================
+
+SIGA ESTES 3 PASSOS:
+
+1️⃣ INSTALE NODE.JS
+   Leia: INSTALAR_NODEJS.txt (está na pasta)
+
+2️⃣ REINICIE O POWERSHELL
+   Feche completamente e abra de novo
+
+3️⃣ EXECUTE O DIAGNÓSTICO
+   powershell -ExecutionPolicy Bypass -File DIAGNOSTICO.ps1
+
+4️⃣ SE TUDO ESTIVER OK, EXECUTE O SETUP
+   powershell -ExecutionPolicy Bypass -File EXECUTE_FASE_3.4_CORRIGIDO.ps1
+
+================================================================================
+                          📋 RESUMO RÁPIDO
+================================================================================
+
+Você precisa:
+  ✓ Baixar Node.js em https://nodejs.org (versão LTS)
+  ✓ Executar o instalador
+  ✓ MARCAR "Add to PATH" durante instalação
+  ✓ Reiniciar o PowerShell
+  ✓ Verificar: node --version
+  ✓ Então rodar o setup script
+
+================================================================================
+                          📁 ARQUIVOS PARA VOCÊ
+================================================================================
+
+1. INSTALAR_NODEJS.txt ← LEIA PRIMEIRO!
+   Passo a passo de como instalar Node.js
+
+2. DIAGNOSTICO.ps1
+   Verifica se Node.js está instalado corretamente
+
+3. EXECUTE_FASE_3.4_CORRIGIDO.ps1
+   O script de setup (roda DEPOIS que Node.js está instalado)
+
+================================================================================
+
+                    PRÓXIMO PASSO: LER INSTALAR_NODEJS.txt
+
+================================================================================
