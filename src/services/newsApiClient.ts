@@ -1,264 +1,141 @@
-// newsApiClient.ts - Cliente HTTP para API de Notícias Eduardo
-// Path: src/services/newsApiClient.ts
+import { supabaseClient } from '../lib/supabaseClient';
 
-export interface NoticiaAPI {
-  id: string
-  titulo: string
-  conteudo: string
-  fonte: string
-  url: string
-  data_publicacao: string
-  data_coleta: string
-  perspectiva_tecnica?: string
-  perspectiva_politica?: string
-  perspectiva_ambiental?: string
-  perspectiva_economica?: string
-  perspectiva_social?: string
-  relevancia?: number
-  summary?: string
+export interface NewsItem {
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    urlToImage: string;
+    publishedAt: string;
+    source: {
+      id: string;
+      name: string;
+    };
+    content?: string;
 }
 
-export interface ListaNoticiasResponse {
-  total: number
-  skip: number
-  limit: number
-  noticias: NoticiaAPI[]
-}
+class NewsApiClient {
+    private maxRetries = 3;
+    private retryDelay = 1000;
 
-export interface FiltrosNoticias {
-  busca?: string
-  fonte?: string
-  dias?: number
-  pagina?: number
-  tamanho?: number
-}
-
-class NewsAPIClient {
-  private baseURL: string
-  private retries: number = 3
-  private retryDelay: number = 1000
-
-  constructor(baseURL: string = 'http://localhost:8000') {
-    this.baseURL = baseURL
-  }
-
-  /**
-   * Método auxiliar para fazer requisições com retry logic
-   */
-  private async fetchComRetry(url: string, options?: RequestInit): Promise<Response> {
-    let ultimoErro: Error | null = null
-
-    for (let tentativa = 0; tentativa < this.retries; tentativa++) {
-      try {
-        const response = await fetch(url, {
-          ...options,
-          headers: {
-            'Content-Type': 'application/json',
-            ...options?.headers,
-          },
-        })
-
-        if (response.ok) {
-          return response
+  async fetchComRetry(
+        url: string,
+        options?: RequestInit,
+        retries: number = 0
+      ): Promise<Response> {
+        try {
+                const response = await fetch(url, options);
+        if (!response.ok) {
+                  throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-
-        // Se não ok mas não é erro de rede, não retry
-        if (response.status >= 400 && response.status < 500) {
-          return response
+                return response;
+        } catch (error) {
+                if (retries < this.maxRetries) {
+                          await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+                          return this.fetchComRetry(url, options, retries + 1);
+                }
+                throw error;
         }
+  }
 
-        ultimoErro = new Error(`HTTP ${response.status}`)
-      } catch (erro) {
-        ultimoErro = erro as Error
-        if (tentativa < this.retries - 1) {
-          await new Promise((resolve) => setTimeout(resolve, this.retryDelay * (tentativa + 1)))
+  async listarNoticias(filtros?: {
+        fonte?: string;
+        diasAtras?: number;
+  }): Promise<NewsItem[]> {
+        try {
+                // Query Supabase directly
+          let query = supabaseClient
+                  .from('noticias')
+                  .select('*');
+
+          // Apply filters if provided
+          if (filtros?.fonte && filtros.fonte !== 'todas') {
+                    query = query.eq('source', filtros.fonte);
+          }
+
+          if (filtros?.diasAtras && filtros.diasAtras > 0) {
+                    const dataLimite = new Date();
+                    dataLimite.setDate(dataLimite.getDate() - filtros.diasAtras);
+                    query = query.gte('publishedAt', dataLimite.toISOString());
+          }
+
+          // Order by published date descending
+          query = query.order('publishedAt', { ascending: false });
+
+          const { data, error } = await query;
+
+          if (error) {
+                    console.error('Erro ao buscar noticias do Supabase:', error);
+                    throw new Error(error.message);
+          }
+
+          return data || [];
+        } catch (error) {
+                console.error('Erro ao listar notícias:', error);
+                throw error;
         }
-      }
-    }
-
-    throw ultimoErro || new Error('Falha após todas as tentativas')
   }
 
-  /**
-   * Listar todas as notícias com opções de filtro
-   */
-  async listarNoticias(filtros: FiltrosNoticias = {}): Promise<NoticiaAPI[]> {
-    try {
-      const params = new URLSearchParams()
+  async buscarNoticias(termo: string): Promise<NewsItem[]> {
+        try {
+                const { data, error } = await supabaseClient
+                  .from('noticias')
+                  .select('*')
+                  .ilike('title', `%${termo}%`)
+                  .order('publishedAt', { ascending: false });
 
-      if (filtros.dias) params.append('days', String(filtros.dias))
-      if (filtros.tamanho) params.append('limit', String(filtros.tamanho))
-      if (filtros.pagina) {
-        const skip = ((filtros.pagina - 1) * (filtros.tamanho || 20))
-        params.append('skip', String(skip))
-      }
+          if (error) {
+                    console.error('Erro ao buscar noticias:', error);
+                    throw new Error(error.message);
+          }
 
-      const url = `${this.baseURL}/api/noticias?${params.toString()}`
-      const response = await this.fetchComRetry(url)
-
-      if (!response.ok) {
-        console.error(`Erro ao listar notícias: ${response.status}`)
-        return []
-      }
-
-      const data = await response.json()
-      return data.noticias || data.news || []
-    } catch (erro) {
-      console.error('Erro ao listar notícias:', erro)
-      return []
-    }
-  }
-
-  /**
-   * Buscar notícias por palavra-chave
-   */
-  async buscar(termo: string, tamanho: number = 20): Promise<NoticiaAPI[]> {
-    try {
-      const params = new URLSearchParams()
-      params.append('search', termo)
-      params.append('limit', String(tamanho))
-
-      const url = `${this.baseURL}/api/noticias/buscar?${params.toString()}`
-      const response = await this.fetchComRetry(url)
-
-      if (!response.ok) return []
-
-      const data = await response.json()
-      return data.noticias || data.news || []
-    } catch (erro) {
-      console.error('Erro ao buscar notícias:', erro)
-      return []
-    }
-  }
-
-  /**
-   * Filtrar notícias por fonte
-   */
-  async porFonte(fonte: string, tamanho: number = 20): Promise<NoticiaAPI[]> {
-    try {
-      const url = `${this.baseURL}/api/noticias/source/${fonte}?limit=${tamanho}`
-      const response = await this.fetchComRetry(url)
-
-      if (!response.ok) return []
-
-      const data = await response.json()
-      return data.noticias || data.news || []
-    } catch (erro) {
-      console.error(`Erro ao buscar notícias de ${fonte}:`, erro)
-      return []
-    }
-  }
-
-  /**
-   * Obter notícias mais recentes
-   */
-  async obterRecentes(tamanho: number = 10): Promise<NoticiaAPI[]> {
-    try {
-      const url = `${this.baseURL}/api/noticias/latest?limit=${tamanho}`
-      const response = await this.fetchComRetry(url)
-
-      if (!response.ok) return []
-
-      const data = await response.json()
-      return data.noticias || data.news || []
-    } catch (erro) {
-      console.error('Erro ao obter notícias recentes:', erro)
-      return []
-    }
-  }
-
-  /**
-   * Obter detalhes de uma notícia específica
-   */
-  async obterPorId(id: string): Promise<NoticiaAPI | null> {
-    try {
-      const url = `${this.baseURL}/api/noticias/${id}`
-      const response = await this.fetchComRetry(url)
-
-      if (!response.ok) return null
-
-      const data = await response.json()
-      return data || null
-    } catch (erro) {
-      console.error(`Erro ao obter notícia ${id}:`, erro)
-      return null
-    }
-  }
-
-  /**
-   * Atualizar notícias do backend
-   */
-  async atualizar(fonte?: string): Promise<{ success: boolean; mensagem: string; total?: number }> {
-    try {
-      const body: any = {}
-      if (fonte) body.fonte = fonte
-
-      const url = `${this.baseURL}/api/noticias/atualizar`
-      const response = await this.fetchComRetry(url, {
-        method: 'POST',
-        body: JSON.stringify(body),
-      })
-
-      if (!response.ok) {
-        return {
-          success: false,
-          mensagem: `Erro ao atualizar: ${response.statusText}`,
+          return data || [];
+        } catch (error) {
+                console.error('Erro ao buscar notícias:', error);
+                throw error;
         }
-      }
-
-      const data = await response.json()
-      return {
-        success: true,
-        mensagem: data.mensagem || 'Atualizado com sucesso',
-        total: data.total || data.noticiasAtualizadas,
-      }
-    } catch (erro) {
-      console.error('Erro ao atualizar notícias:', erro)
-      return {
-        success: false,
-        mensagem: erro instanceof Error ? erro.message : 'Erro desconhecido',
-      }
-    }
   }
 
-  /**
-   * Verificar saúde da API
-   */
-  async verificarSaude(): Promise<boolean> {
-    try {
-      const url = `${this.baseURL}/api/health`
-      const response = await this.fetchComRetry(url)
-      return response.ok
-    } catch (erro) {
-      console.error('Erro ao verificar saúde da API:', erro)
-      return false
-    }
+  async obterNoticia(id: string): Promise<NewsItem | null> {
+        try {
+                const { data, error } = await supabaseClient
+                  .from('noticias')
+                  .select('*')
+                  .eq('id', id)
+                  .single();
+
+          if (error) {
+                    console.error('Erro ao obter noticia:', error);
+                    return null;
+          }
+
+          return data || null;
+        } catch (error) {
+                console.error('Erro ao obter notícia:', error);
+                return null;
+        }
   }
 
-  /**
-   * Obter estatísticas
-   */
-  async obterEstatisticas(): Promise<{ total: number; fontes: Record<string, number> }> {
-    try {
-      const url = `${this.baseURL}/api/noticias/stats`
-      const response = await this.fetchComRetry(url)
+  async listarFontes(): Promise<string[]> {
+        try {
+                const { data, error } = await supabaseClient
+                  .from('noticias')
+                  .select('source')
+                  .neq('source', null);
 
-      if (!response.ok) {
-        return { total: 0, fontes: {} }
-      }
+          if (error) {
+                    console.error('Erro ao listar fontes:', error);
+                    return [];
+          }
 
-      const data = await response.json()
-      return data
-    } catch (erro) {
-      console.error('Erro ao obter estatísticas:', erro)
-      return { total: 0, fontes: {} }
-    }
+          // Extract unique sources
+          const fontes = [...new Set(data?.map(item => item.source) || [])];
+                return fontes as string[];
+        } catch (error) {
+                console.error('Erro ao listar fontes:', error);
+                return [];
+        }
   }
 }
 
-// Exportar instância singleton
-export const newsApiClient = new NewsAPIClient(
-  import.meta.env.VITE_API_URL || 'http://localhost:8000'
-)
-
-export default newsApiClient
+export default new NewsApiClient();
