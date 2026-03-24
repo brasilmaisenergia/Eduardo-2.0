@@ -3,19 +3,21 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!SUPABASE_URL) {
+  throw new Error('VITE_SUPABASE_URL environment variable is not defined')
+}
+
+if (!SUPABASE_ANON_KEY) {
+  throw new Error('VITE_SUPABASE_ANON_KEY environment variable is not defined')
+}
 
 let supabase: SupabaseClient | null = null
 
 export function initializeSupabase(): SupabaseClient {
   if (!supabase) {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.warn(
-        'Supabase não configurado. VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY são necessários.'
-      )
-    }
-
     supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   }
 
@@ -425,5 +427,7 @@ export function inscreverEmMudancasInteligencia(callback: (payload: any) => void
     return null
   }
 }
+
+export const supabaseClient = getSupabase()
 
 export default getSupabase()
