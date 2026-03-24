@@ -427,3 +427,5 @@ export function inscreverEmMudancasInteligencia(callback: (payload: any) => void
 }
 
 export default getSupabase()
+
+export const supabaseClient = getSupabase();
