@@ -1,8 +1,10 @@
 {
-      "routes": [
-              {
-                        "src": "/(.*)",
-                        "dest": "/index.html"
-              }
-      ]
+        "buildCommand": "npm run build",
+        "outputDirectory": "dist",
+        "routes": [
+                  {
+                              "src": "^/(?!api/|assets/|_next/)[^.]+$",
+                              "dest": "/"
+                  }
+        ]
 }
