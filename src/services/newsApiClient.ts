@@ -139,3 +139,4 @@ class NewsApiClient {
 }
 
 export default new NewsApiClient();
+export { supabaseClient };
