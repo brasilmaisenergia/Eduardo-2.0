@@ -11,7 +11,7 @@ interface EduardoResponse {
 }
 
 export class EduardoService {
-  private apiUrl = process.env.VITE_API_URL || 'https://eduardo-2-0.vercel.app'
+  private apiUrl = import.meta.env.VITE_API_URL || 'https://eduardo-2-0.vercel.app'
 
   /**
    * Enviar pergunta para Eduardo e receber resposta

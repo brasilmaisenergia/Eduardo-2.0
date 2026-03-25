@@ -5,8 +5,6 @@
 
 import { ChatEduardo } from '../components/ChatEduardo'
 
-export function ChatPage() {
+export default function ChatPage() {
   return <ChatEduardo />
 }
-
-export default ChatPage

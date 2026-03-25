@@ -38,7 +38,7 @@ const RELEVANCIA_CORES = {
   baixa: 'bg-green-100 border-green-300 text-green-900',
 }
 
-export function NoticiasAnalise() {
+export default function NoticiasAnalise() {
   const [noticias, setNoticias] = useState<Noticia[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedStakeholder, setSelectedStakeholder] = useState<string | null>(
@@ -282,5 +282,3 @@ export function NoticiasAnalise() {
     </div>
   )
 }
-
-export default NoticiasAnalise
